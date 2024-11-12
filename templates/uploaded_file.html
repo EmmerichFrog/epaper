@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Image</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Crop your uploaded picture:</h1>
+        <!-- Image container for cropping -->
+        <img id="image-to-crop" src="{{ url_for('display_image', filename=filename) }}" alt="Uploaded Image">
+
+
+        <!-- Buttons -->
+        <button id="crop-button" class="crop-button" onclick="cropImage()">Crop & Convert</button>
+        <form id="convert-form" action="{{ url_for('convert', filename=filename) }}" method="post"
+            style="display: none;">
+            <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+        </form>
+
+        <br>
+        <a href="/" class="upload-another">Upload another picture</a>
+    </div>
+
+    <!-- Include Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        let cropper;
+        const image = document.getElementById('image-to-crop');
+
+        // Function to initialize the cropper with a dynamic aspect ratio
+        function initializeCropper() {
+            const aspectRatio = calculateAspectRatio(image.naturalWidth, image.naturalHeight);
+
+            // Initialize Cropper.js with the calculated aspect ratio
+            cropper = new Cropper(image, {
+                aspectRatio: aspectRatio,
+                viewMode: 1,
+                movable: true,
+                zoomable: false,
+                scalable: false,
+                cropBoxResizable: true,
+                autoCropArea: 1
+            });
+        }
+
+        // Calculate aspect ratio based on image dimensions
+        function calculateAspectRatio(width, height) {
+            if (width > height) {
+                return 5 / 3; // Landscape
+            } else if (height > width) {
+                return 3 / 5; // Portrait
+            } else {
+                return 1; // Square
+            }
+        }
+
+        // Load the image and initialize the cropper
+        image.onload = function () {
+            initializeCropper();
+        };
+
+        // Set your desired maximum dimensions (e.g., max width 1024px, max height 1024px)
+        const MAX_WIDTH = 1024;
+        const MAX_HEIGHT = 1024;
+
+        function cropImage() {
+            const canvas = cropper.getCroppedCanvas();
+
+            if (canvas) {
+                // Step 1: Scale the cropped canvas to the maximum size
+                const resizedCanvas = resizeCanvas(canvas, MAX_WIDTH, MAX_HEIGHT);
+
+                // Step 2: Convert the resized canvas to a data URL with reduced quality
+                const croppedImageData = resizedCanvas.toDataURL('image/jpeg', 0.7); // Adjust quality as needed
+
+                // Step 3: Set the hidden input value with the resized and compressed image data
+                document.getElementById('cropped-image-data').value = croppedImageData;
+
+                // Step 4: Submit the form
+                document.getElementById('convert-form').submit();
+            }
+        }
+
+        // Function to resize the canvas while maintaining aspect ratio
+        function resizeCanvas(canvas, maxWidth, maxHeight) {
+            const width = canvas.width;
+            const height = canvas.height;
+            let newWidth = width;
+            let newHeight = height;
+
+            // Calculate the new dimensions while maintaining aspect ratio
+            if (width > height && width > maxWidth) {
+                newWidth = maxWidth;
+                newHeight = (height * maxWidth) / width;
+            } else if (height > width && height > maxHeight) {
+                newHeight = maxHeight;
+                newWidth = (width * maxHeight) / height;
+            } else if (width > maxWidth) {
+                newWidth = maxWidth;
+                newHeight = (height * maxWidth) / width;
+            } else if (height > maxHeight) {
+                newHeight = maxHeight;
+                newWidth = (width * maxHeight) / height;
+            }
+
+            // Create a new canvas to draw the resized image
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = newWidth;
+            resizedCanvas.height = newHeight;
+
+            const ctx = resizedCanvas.getContext('2d');
+            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+            return resizedCanvas;
+        }
+    </script>
+</body>
+
+</html>

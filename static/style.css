@@ -1,0 +1,163 @@
+body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Ensures full screen height for centering */
+    margin: 0;
+}
+
+.container {
+    max-width: 90vw;
+    /* Make the container responsive */
+    max-height: 100vh;
+    /* Limit the height */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1E1E1E;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    /* Make the container relative to position other elements */
+    z-index: 1;
+    /* Keep the container above the image */
+}
+
+/* Buttons */
+.convert-button,
+.upload-button,
+.crop-button {
+    background-color: #FF6D00;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 10px 0;
+    /* Margin to provide space around buttons */
+}
+
+.convert-button:hover,
+.upload-button:hover {
+    background-color: #D55C00;
+}
+
+/* Links */
+.upload-another {
+    color: #FF6D00;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+/* Links */
+.upload-another {
+    color: #FF6D00;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.upload-another:hover {
+    text-decoration: underline;
+}
+
+/* Input Fields */
+.file-input {
+    background-color: #333333;
+    color: #E0E0E0;
+    border: 1px solid #555555;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 80%;
+    background-color: #333333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 20px auto;
+}
+
+.progress-bar {
+    width: 0;
+    height: 20px;
+    background-color: #4CAF50;
+    transition: width 0.2s ease;
+}
+
+/* Loading Spinner Container */
+.loading-spinner-container {
+    display: none;
+    /* Initially hidden */
+    position: absolute;
+    /* Positioning to center within the container */
+    top: 50%;
+    /* Center vertically */
+    left: 50%;
+    /* Center horizontally */
+    transform: translate(-50%, -50%);
+    /* Adjust to truly center */
+    justify-content: center;
+    /* Center content */
+    align-items: center;
+    /* Center content */
+    width: 100%;
+    /* Full width for overlay effect */
+    height: 100%;
+    /* Full height for overlay effect */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Optional: Add a dark overlay behind the spinner */
+    z-index: 2;
+    /* Ensure it's above other content */
+}
+
+/* Loading Spinner Styling */
+.loading-spinner {
+    border: 4px solid #333333;
+    /* Dark grey */
+    border-top: 4px solid #4CAF50;
+    /* Green */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+
+/* Spinner Animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Image Styling */
+#image-to-crop {
+    max-width: 70vw;
+    /* Ensure it doesn't overflow the container */
+    max-height: 70vh;
+    /* Limit the height to allow space for buttons */
+    object-fit: contain;
+    /* Ensure the entire image fits without cropping */
+    border-radius: 5px;
+    /* Optional: Rounded corners for the image */
+    margin: 10px auto;
+    /* Center the image with margin */
+    display: block;
+    /* Centering with margin auto requires block display */
+}
