@@ -1,4 +1,6 @@
 *.jpg
+*.png
+*.JPG
 *.jpeg
 *.bmp
 DSC00364.jpg
@@ -6,3 +8,4 @@ DSC00364.jpg
 .venv
 pic
 __pycache__
+old

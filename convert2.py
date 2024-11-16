@@ -31,8 +31,8 @@ def convertOptimized(img_name: str) -> tuple[str, Image.Image]:
     box = tuple((n - o) // 2 for n, o in zip(imgWBorderSize, imgRes.size))
     imgWBorder.paste(imgRes, box)  # type: ignore
     saveName = "conv_" + os.path.splitext(os.path.basename(img_name))[0] + ".bmp"
-    savePath = os.path.join(os.path.dirname(os.path.dirname(img_name)), "pic")
-    # imgWBorder.save(os.path.join(savePath, saveName), "BMP")
+    savePath = os.path.dirname(img_name)
+    imgWBorder.save(os.path.join(savePath, saveName), "BMP")
 
     return saveName, imgWBorder
 

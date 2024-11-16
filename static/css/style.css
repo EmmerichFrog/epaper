@@ -1,0 +1,199 @@
+/* General dark mode styling */
+body {
+    background-color: #1e1e2e;
+    color: #f1f1f1;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 90%;
+    overflow: scroll;
+}
+
+.container {
+    padding: 10px;
+    background-color: #282a36;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ff79c6;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input[type="file"] {
+    background-color: #44475a;
+    border: 1px solid #6272a4;
+    padding: 10px;
+    color: #f8f8f2;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #ff79c6;
+    color: #282a36;
+    border: none;
+    margin-left: auto;
+    margin-right: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #bd93f9;
+}
+
+button {
+    background-color: #50fa7b;
+    color: #282a36;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #8be9fd;
+}
+
+/* Progress Bar */
+#progressContainer {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.progress {
+    background-color: #44475a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: #ffb86c;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    color: #282a36;
+    transition: width 0.4s ease;
+}
+
+/* Image Container */
+#imageContainer {
+    display: grid;
+    height: 100%;
+    overflow: hidden;
+}
+
+#uploadedImage {
+    max-width: 100%;
+    max-height: 80vh;
+    margin: auto;
+    overflow: hidden;
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border: 1px solid #44475a;
+    border-radius: 8px;
+}
+
+#headImg {
+    display: grid;
+    align-items: center;
+    max-width: 70%;
+    max-height: 70%;
+    margin: auto;
+    object-fit: contain;
+    border: none;
+}
+
+/* Crop Button */
+#cropBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #3ad669;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 100;
+    display: none;
+}
+
+#cropBtn:hover {
+    background-color: #00ff2a;
+}
+
+#okBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #3ad669;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 100;
+    display: none;
+}
+
+#okBtn:hover {
+    background-color: #00ff2a;
+}
+
+#vertBtn {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background-color: #bd93f9;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 100;
+    display: none;
+}
+
+#vertBtn:hover {
+    background-color: #ff79c6;
+}
+
+#horBtn {
+    position: fixed;
+    bottom: 180px;
+    right: 20px;
+    background-color: #decafa;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 100;
+    display: none;
+}
+
+#horBtn:hover {
+    background-color: #ff79c6;
+}
