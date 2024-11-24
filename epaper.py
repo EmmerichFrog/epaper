@@ -3,7 +3,6 @@ import sys
 import os
 from PIL import Image
 
-
 # picdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "pic")
 def setPic(imgFile: Image.Image) -> None:
     libdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib")
@@ -16,13 +15,13 @@ def setPic(imgFile: Image.Image) -> None:
 
     logging.basicConfig(level=logging.INFO)
     try:
-        logging.info("epd7in3f Demo")
+        logging.info("epd7in3f: apply image")
 
         epd = epd7in3f.EPD()
         logging.info("init and Clear")
         epd.init()
         epd.Clear()
-
+        logging.info("init done")
         # read bmp file
         logging.info(f"Read picture")
         # Himage = Image.open(imgFile)

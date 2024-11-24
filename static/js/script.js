@@ -5,9 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressContainer = document.getElementById("progressContainer");
     const progressBar = document.getElementById("progressBar");
     const imageContainer = document.getElementById("imageContainer");
+    const header = document.getElementById("header2");
     const headerImg = document.getElementById("headImg");
     const uploadedImage = document.getElementById("uploadedImage");
     const cropBtn = document.getElementById("cropBtn");
+    const shutdownBtn = document.getElementById("shutdownBtn");
     const okBtn = document.getElementById("okBtn");
     const vertBtn = document.getElementById("vertBtn");
     const horBtn = document.getElementById("horBtn");
@@ -43,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
             uploadedImage.src = imageUrl;
             headerImg.style.display = "none";
             imageContainer.style.display = "grid";
+            header.innerText = "Confirm or Upload New"
             okBtn.style.display = "block";
             cropBtn.style.display = "none";
             horBtn.style.display = "none";
@@ -53,9 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+    shutdownBtn.addEventListener("click", () => {
+        header.innerText = "Shutting down"
+        const xhr = new XMLHttpRequest();
+        xhr.open("get", "/shutdown", true);
+        xhr.send();
+
+    });
+
     okBtn.addEventListener("click", () => {
         progressBar.style.display = "none"
         const aspectRatio = calculateAspectRatio(uploadedImage.naturalWidth, uploadedImage.naturalHeight);
+        header.innerText = "Crop and Confirm"
 
         function calculateAspectRatio(width, height) {
             if (width > height) {
@@ -104,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cropBtn.addEventListener("click", () => {
         const MAX_WIDTH = 800;
         const MAX_HEIGHT = 800;
+        header.innerText = "Setting New Picture..."
         const croppedCanvas = cropper.getCroppedCanvas();
         cropper.destroy();
         if (croppedCanvas) {

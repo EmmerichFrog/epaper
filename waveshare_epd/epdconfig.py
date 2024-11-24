@@ -34,9 +34,9 @@ import time
 import subprocess
 
 from ctypes import *
+from typing import Literal
 
 logger = logging.getLogger(__name__)
-
 
 class RaspberryPi:
     # Pin definition
@@ -161,9 +161,6 @@ class RaspberryPi:
             self.GPIO_PWR_PIN.close()
             self.GPIO_BUSY_PIN.close()
 
-        
-
-
 
 class JetsonNano:
     # Pin definition
@@ -192,10 +189,10 @@ class JetsonNano:
         import Jetson.GPIO
         self.GPIO = Jetson.GPIO
 
-    def digital_write(self, pin, value):
+    def digital_write(self, pin, value) -> None:
         self.GPIO.output(pin, value)
 
-    def digital_read(self, pin):
+    def digital_read(self, pin) -> Literal[0] | Literal[1]:
         return self.GPIO.input(self.BUSY_PIN)
 
     def delay_ms(self, delaytime):
@@ -243,7 +240,7 @@ class SunriseX3:
     PWR_PIN  = 18
     Flag     = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         import spidev
         import Hobot.GPIO
 

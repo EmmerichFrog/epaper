@@ -29,6 +29,7 @@
 #
 
 import logging
+from typing import Literal
 from . import epdconfig
 
 import PIL
@@ -42,7 +43,7 @@ EPD_HEIGHT      = 480
 logger = logging.getLogger(__name__)
 
 class EPD:
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset_pin = epdconfig.RST_PIN
         self.dc_pin = epdconfig.DC_PIN
         self.busy_pin = epdconfig.BUSY_PIN
@@ -58,7 +59,7 @@ class EPD:
         self.ORANGE = 0x0080ff   #   0110
         
     # Hardware reset
-    def reset(self):
+    def reset(self) -> None:
         epdconfig.digital_write(self.reset_pin, 1)
         epdconfig.delay_ms(20) 
         epdconfig.digital_write(self.reset_pin, 0)         # module reset
@@ -66,32 +67,32 @@ class EPD:
         epdconfig.digital_write(self.reset_pin, 1)
         epdconfig.delay_ms(20)   
 
-    def send_command(self, command):
+    def send_command(self, command) -> None:
         epdconfig.digital_write(self.dc_pin, 0)
         epdconfig.digital_write(self.cs_pin, 0)
         epdconfig.spi_writebyte([command])
         epdconfig.digital_write(self.cs_pin, 1)
 
-    def send_data(self, data):
+    def send_data(self, data) -> None:
         epdconfig.digital_write(self.dc_pin, 1)
         epdconfig.digital_write(self.cs_pin, 0)
         epdconfig.spi_writebyte([data])
         epdconfig.digital_write(self.cs_pin, 1)
         
     # send a lot of data   
-    def send_data2(self, data):
+    def send_data2(self, data) -> None:
         epdconfig.digital_write(self.dc_pin, 1)
         epdconfig.digital_write(self.cs_pin, 0)
         epdconfig.spi_writebyte2(data)
         epdconfig.digital_write(self.cs_pin, 1)
         
-    def ReadBusyH(self):
+    def ReadBusyH(self) -> None:
         logger.debug("e-Paper busy H")
         while(epdconfig.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
             epdconfig.delay_ms(5)
         logger.debug("e-Paper busy H release")
 
-    def TurnOnDisplay(self):
+    def TurnOnDisplay(self) -> None:
         self.send_command(0x04) # POWER_ON
         self.ReadBusyH()
 
@@ -103,7 +104,7 @@ class EPD:
         self.send_data(0X00)
         self.ReadBusyH()
         
-    def init(self):
+    def init(self) -> Literal[-1] | Literal[0]:
         if (epdconfig.module_init() != 0):
             return -1
         # EPD hardware init start
@@ -197,7 +198,7 @@ class EPD:
         self.send_data(0x00)
         return 0
 
-    def getbuffer(self, image: Image.Image):
+    def getbuffer(self, image: Image.Image) -> list[int]:
         # Create a pallette with the 7 colors supported by the panel
         pal_image = Image.new("P", (1,1))
         pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
@@ -219,19 +220,19 @@ class EPD:
             
         return buf
 
-    def display(self, image):
+    def display(self, image) -> None:
         self.send_command(0x10)
         self.send_data2(image)
 
         self.TurnOnDisplay()
         
-    def Clear(self, color=0x11):
+    def Clear(self, color=0x11) -> None:
         self.send_command(0x10)
         self.send_data2([color] * int(self.height) * int(self.width/2))
 
         self.TurnOnDisplay()
 
-    def sleep(self):
+    def sleep(self) -> None:
         self.send_command(0x07) # DEEP_SLEEP
         self.send_data(0XA5)
         

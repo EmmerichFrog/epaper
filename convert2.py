@@ -7,9 +7,6 @@ MAX_HEIGHT = 480
 
 def convertOptimized(img_name: str) -> tuple[str, Image.Image]:
     img = Image.open(img_name).convert("RGB")
-    # p_img = Image.open("palette.bmp").convert("P", palette=Image.Palette.ADAPTIVE)
-    #p_img = Image.new("P", (1,1))
-    #p_img.putpalette( (0,0,0,  255,255,255,  255,255,255,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
     ImageOps.exif_transpose(img, in_place=True)
     width, height = img.size
     if height > width:
