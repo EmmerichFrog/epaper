@@ -23,13 +23,13 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
 
 import logging
-from . import epdconfig
+from waveshare_epd.epdconfig import RaspberryPi
 
 import PIL
 from PIL import Image
@@ -43,10 +43,11 @@ logger = logging.getLogger(__name__)
 
 class EPD:
     def __init__(self):
-        self.reset_pin = epdconfig.RST_PIN
-        self.dc_pin = epdconfig.DC_PIN
-        self.busy_pin = epdconfig.BUSY_PIN
-        self.cs_pin = epdconfig.CS_PIN
+        self.epd = RaspberryPi()
+        self.reset_pin = self.epd.RST_PIN
+        self.dc_pin = self.epd.DC_PIN
+        self.busy_pin = self.epd.BUSY_PIN
+        self.cs_pin = self.epd.CS_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
         self.BLACK  = 0x000000   #   0000  BGR
@@ -59,37 +60,37 @@ class EPD:
 
     # Hardware reset
     def reset(self):
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(20) 
-        epdconfig.digital_write(self.reset_pin, 0)         # module reset
-        epdconfig.delay_ms(2)
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(20)   
+        self.epd.digital_write(self.reset_pin, 1)
+        self.epd.delay_ms(20) 
+        self.epd.digital_write(self.reset_pin, 0)         # module reset
+        self.epd.delay_ms(2)
+        self.epd.digital_write(self.reset_pin, 1)
+        self.epd.delay_ms(20)   
 
     def send_command(self, command):
-        epdconfig.digital_write(self.dc_pin, 0)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([command])
-        epdconfig.digital_write(self.cs_pin, 1)
+        self.epd.digital_write(self.dc_pin, 0)
+        self.epd.digital_write(self.cs_pin, 0)
+        self.epd.spi_writebyte([command])
+        self.epd.digital_write(self.cs_pin, 1)
 
     def send_data(self, data):
-        epdconfig.digital_write(self.dc_pin, 1)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([data])
-        epdconfig.digital_write(self.cs_pin, 1)
+        self.epd.digital_write(self.dc_pin, 1)
+        self.epd.digital_write(self.cs_pin, 0)
+        self.epd.spi_writebyte([data])
+        self.epd.digital_write(self.cs_pin, 1)
         
     # send a lot of data   
     def send_data2(self, data):
-        epdconfig.digital_write(self.dc_pin, 1)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte2(data)
-        epdconfig.digital_write(self.cs_pin, 1)
+        self.epd.digital_write(self.dc_pin, 1)
+        self.epd.digital_write(self.cs_pin, 0)
+        self.epd.spi_writebyte2(data)
+        self.epd.digital_write(self.cs_pin, 1)
         
     def ReadBusyH(self):
         logger.debug("e-Paper busy H")
-        while(epdconfig.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
-            epdconfig.delay_ms(5)
-        epdconfig.delay_ms(200)
+        while(self.epd.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
+            self.epd.delay_ms(5)
+        self.epd.delay_ms(200)
         logger.debug("e-Paper busy H release")
 
     def TurnOnDisplay(self):
@@ -101,7 +102,7 @@ class EPD:
         self.send_data(0x1F)
         self.send_data(0x17)
         self.send_data(0x27)
-        epdconfig.delay_ms(200)
+        self.epd.delay_ms(200)
 
         self.send_command(0x12) # DISPLAY_REFRESH
         self.send_data(0X00)
@@ -112,12 +113,12 @@ class EPD:
         self.ReadBusyH()
         
     def init(self):
-        if (epdconfig.module_init() != 0):
+        if (self.epd.module_init() != 0):
             return -1
         # EPD hardware init start
         self.reset()
         self.ReadBusyH()
-        epdconfig.delay_ms(30)
+        self.epd.delay_ms(30)
 
         self.send_command(0xAA)   
         self.send_data(0x49)
@@ -187,17 +188,8 @@ class EPD:
         pal_image = Image.new("P", (1,1))
         pal_image.putpalette( (0,0,0,  255,255,255,  255,255,0,  255,0,0,  0,0,0,  0,0,255,  0,255,0) + (0,0,0)*249)
 
-        # Check if we need to rotate the image
-        imwidth, imheight = image.size
-        if(imwidth == self.width and imheight == self.height):
-            image_temp = image
-        elif(imwidth == self.height and imheight == self.width):
-            image_temp = image.rotate(90, expand=True)
-        else:
-            logger.warning("Invalid image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, self.width, self.height))
-
         # Convert the soruce image to the 7 colors, dithering if needed
-        image_6color = image_temp.convert("RGB").quantize(palette=pal_image)
+        image_6color = image.convert("RGB").quantize(palette=pal_image)
         buf_6color = bytearray(image_6color.tobytes('raw'))
 
         # PIL does not support 4 bit color, so pack the 4 bits of color
@@ -226,7 +218,7 @@ class EPD:
         self.send_command(0x07) # DEEP_SLEEP
         self.send_data(0XA5)
         
-        epdconfig.delay_ms(2000)
-        epdconfig.module_exit()
+        self.epd.delay_ms(2000)
+        self.epd.module_exit()
 ### END OF FILE ###
 

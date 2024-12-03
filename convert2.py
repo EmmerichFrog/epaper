@@ -3,13 +3,13 @@ import os
 
 
 def convertOptimized(img_name: str) -> tuple[str, Image.Image]:
-    MAX_HEIGHT = 480
-    MAX_WIDTH = 800
+    MAX_HEIGHT = 600
+    MAX_WIDTH = 400
 
     img = Image.open(img_name).convert("RGB")
     ImageOps.exif_transpose(img, in_place=True)
     width, height = img.size
-    if height > width:
+    if width > height:
         img = img.rotate(90, expand=True, resample=Image.Resampling.BICUBIC)
         width, height = img.size
 

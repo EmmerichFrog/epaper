@@ -10,14 +10,14 @@ def setPic(imgFile: Image.Image) -> None:
         sys.path.append(libdir)
 
     import logging
-    from waveshare_epd import epd7in3f
+    from waveshare_epd import epd4in0e
     import time
 
     logging.basicConfig(level=logging.INFO)
     try:
         logging.info("epd7in3f: apply image")
 
-        epd = epd7in3f.EPD()
+        epd = epd4in0e.EPD()
         logging.info("init and Clear")
         epd.init()
         epd.Clear()
@@ -37,7 +37,7 @@ def setPic(imgFile: Image.Image) -> None:
 
     except KeyboardInterrupt:
         logging.info("ctrl + c:")
-        epd7in3f.epdconfig.module_exit(cleanup=True)  # type: ignore
+        epd4in0e.epdconfig.module_exit(cleanup=True)  # type: ignore
         exit()
 
 
