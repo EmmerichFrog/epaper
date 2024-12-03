@@ -1,11 +1,11 @@
-from operator import ne
 from PIL import Image, ImageOps, ImageEnhance
 import os
 
-MAX_HEIGHT = 480
-
 
 def convertOptimized(img_name: str) -> tuple[str, Image.Image]:
+    MAX_HEIGHT = 480
+    MAX_WIDTH = 800
+
     img = Image.open(img_name).convert("RGB")
     ImageOps.exif_transpose(img, in_place=True)
     width, height = img.size
@@ -13,16 +13,15 @@ def convertOptimized(img_name: str) -> tuple[str, Image.Image]:
         img = img.rotate(90, expand=True, resample=Image.Resampling.BICUBIC)
         width, height = img.size
 
-    new_width = 800
+    new_width = MAX_WIDTH
     new_height = int(height * new_width / width)
     if new_height > MAX_HEIGHT:
-        new_width = int(new_width * 480 / new_height)
+        new_width = int(new_width * MAX_HEIGHT / new_height)
         new_height = MAX_HEIGHT
     imgRes = img.resize((new_width, new_height), Image.Resampling.BICUBIC)
 
-    #imgDithered = imgRes.quantize(dither=Image.Dither.FLOYDSTEINBERG, palette=p_img)
     imgRes = ImageEnhance.Contrast(imgRes).enhance(1.5)
-    imgWBorderSize = (800, 480)
+    imgWBorderSize = (MAX_WIDTH, MAX_HEIGHT)
     imgWBorder = Image.new("RGB", imgWBorderSize, "white")
 
     box = tuple((n - o) // 2 for n, o in zip(imgWBorderSize, imgRes.size))

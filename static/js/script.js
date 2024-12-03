@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cropper = new Cropper(uploadedImage, {
             aspectRatio: aspectRatio,
             viewMode: 1,
-            zoomable: false,
+            zoomable: true,
+            zoomOnWheel: false
         });
         okBtn.style.display = "none";
         cropBtn.style.display = "block";
@@ -96,7 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cropper = new Cropper(uploadedImage, {
             aspectRatio: 3 / 5,
             viewMode: 1,
-            zoomable: false,
+            zoomable: true,
+            zoomOnWheel: false
         });
 
     })
@@ -106,7 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cropper = new Cropper(uploadedImage, {
             aspectRatio: 5 / 3,
             viewMode: 1,
-            zoomable: false,
+            zoomable: true,
+            zoomOnWheel: false
         });
 
     })

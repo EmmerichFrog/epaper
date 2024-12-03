@@ -42,5 +42,5 @@ def setPic(imgFile: Image.Image) -> None:
 
 
 if __name__ == "__main__":
-    img = Image.open("DSC00364.bmp").convert("RGB")
+    img = Image.new("RGB", (800,800))
     setPic(img)
