@@ -6,7 +6,7 @@
 # *----------------
 # * | This version:   V1.2
 # * | Date        :   2022-10-29
-# * | Info        :   
+# * | Info        :
 # ******************************************************************************
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documnetation files (the "Software"), to deal
@@ -27,36 +27,35 @@
 # THE SOFTWARE.
 #
 
-import os
 import logging
+import os
 import time
 from ctypes import CDLL
 from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
+
 class RaspberryPi:
     # Pin definition
-    RST_PIN  = 17
-    DC_PIN   = 25
-    CS_PIN   = 8
+    RST_PIN = 17
+    DC_PIN = 25
+    CS_PIN = 8
     BUSY_PIN = 24
-    PWR_PIN  = 18
+    PWR_PIN = 18
     MOSI_PIN = 10
     SCLK_PIN = 11
 
     def __init__(self) -> None:
-        import spidev
         import gpiozero
-        
-        self.SPI = spidev.SpiDev()
-        self.GPIO_RST_PIN    = gpiozero.LED(self.RST_PIN)
-        self.GPIO_DC_PIN     = gpiozero.LED(self.DC_PIN)
-        # self.GPIO_CS_PIN     = gpiozero.LED(self.CS_PIN)
-        self.GPIO_PWR_PIN    = gpiozero.LED(self.PWR_PIN)
-        self.GPIO_BUSY_PIN   = gpiozero.Button(self.BUSY_PIN, pull_up = False)
+        import spidev
 
-        
+        self.SPI = spidev.SpiDev()
+        self.GPIO_RST_PIN = gpiozero.LED(self.RST_PIN)
+        self.GPIO_DC_PIN = gpiozero.LED(self.DC_PIN)
+        # self.GPIO_CS_PIN     = gpiozero.LED(self.CS_PIN)
+        self.GPIO_PWR_PIN = gpiozero.LED(self.PWR_PIN)
+        self.GPIO_BUSY_PIN = gpiozero.Button(self.BUSY_PIN, pull_up=False)
 
     def digital_write(self, pin, value) -> None:
         if pin == self.RST_PIN:
@@ -103,38 +102,38 @@ class RaspberryPi:
         self.SPI.writebytes2(data)
 
     def DEV_SPI_write(self, data) -> None:
-        self.DEV_SPI.DEV_SPI_SendData(data) # type: ignore
+        self.DEV_SPI.DEV_SPI_SendData(data)  # type: ignore
 
     def DEV_SPI_nwrite(self, data) -> None:
-        self.DEV_SPI.DEV_SPI_SendnData(data) # type: ignore
+        self.DEV_SPI.DEV_SPI_SendnData(data)  # type: ignore
 
     def DEV_SPI_read(self) -> Any:
-        return self.DEV_SPI.DEV_SPI_ReadData() # type: ignore
+        return self.DEV_SPI.DEV_SPI_ReadData()  # type: ignore
 
     def module_init(self, cleanup=False):
         self.GPIO_PWR_PIN.on()
-        
+
         if cleanup:
             find_dirs = [
                 os.path.dirname(os.path.realpath(__file__)),
-                '/usr/local/lib',
-                '/usr/lib',
+                "/usr/local/lib",
+                "/usr/lib",
             ]
             self.DEV_SPI = None
             for find_dir in find_dirs:
-                val = int(os.popen('getconf LONG_BIT').read())
-                logging.debug("System is %d bit"%val)
+                val = int(os.popen("getconf LONG_BIT").read())
+                logging.debug("System is %d bit" % val)
                 if val == 64:
-                    so_filename = os.path.join(find_dir, 'DEV_Config_64.so')
+                    so_filename = os.path.join(find_dir, "DEV_Config_64.so")
                 else:
-                    so_filename = os.path.join(find_dir, 'DEV_Config_32.so')
+                    so_filename = os.path.join(find_dir, "DEV_Config_32.so")
                 if os.path.exists(so_filename):
                     self.DEV_SPI = CDLL(so_filename)
                     break
             if self.DEV_SPI is None:
-                RuntimeError('Cannot find DEV_Config.so')
+                RuntimeError("Cannot find DEV_Config.so")
 
-            self.DEV_SPI.DEV_Module_Init() # type: ignore
+            self.DEV_SPI.DEV_Module_Init()  # type: ignore
 
         else:
             # SPI device, bus = 0, device = 0
@@ -151,11 +150,10 @@ class RaspberryPi:
         self.GPIO_DC_PIN.off()
         self.GPIO_PWR_PIN.off()
         logger.debug("close 5V, Module enters 0 power consumption ...")
-        
+
         if cleanup:
             self.GPIO_RST_PIN.close()
             self.GPIO_DC_PIN.close()
             # self.GPIO_CS_PIN.close()
             self.GPIO_PWR_PIN.close()
             self.GPIO_BUSY_PIN.close()
-

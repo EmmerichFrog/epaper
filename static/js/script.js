@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadedImage.style.marginRight = " ";
         const file = fileInput.files[0];
         if (!file) return alert("Please select a file!");
-
+        progressContainer.style.display = "block";
         const formData = new FormData();
         formData.append("file", file);
 
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
                 const percentComplete = Math.round((event.loaded / event.total) * 100);
-                progressContainer.style.display = "block";
                 progressBar.style.width = percentComplete + "%";
                 progressBar.textContent = percentComplete + "%";
             }
@@ -70,10 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
         header.innerText = "Crop and Confirm"
 
         function calculateAspectRatio(width, height) {
+            let landscape;
+            let portrait;
+            switch (panel) {
+                case 'epd7in3f':
+                    landscape = 800 / 480
+                    portrait = 480 / 800
+                    break;
+
+                case 'epd4in0e':
+                    landscape = 600 / 400
+                    portrait = 400 / 600
+                    break;
+
+            }
             if (width > height) {
-                return 5 / 3; // Landscape
+                return landscape;
             } else if (height > width) {
-                return 3 / 5; // Portrait
+                return portrait;
             } else {
                 return 1; // Square
             }
@@ -134,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cropBtn.style.display = "none";
             horBtn.style.display = "none";
             vertBtn.style.display = "none";
+            shutdownBtn.style.display = "none";
             const formData = new FormData();
 
             formData.append("cropped_image_data", croppedImage);
@@ -142,6 +156,37 @@ document.addEventListener("DOMContentLoaded", () => {
             xhr.open("POST", `/converted`, true);
 
             xhr.send(formData);
+
+            subscribe()
+
+            async function subscribe() {
+                let response = await fetch("/done");
+
+                if (response.status == 502) {
+                    // Status 502 is a connection timeout error,
+                    // may happen when the connection was pending for too long,
+                    // and the remote server or a proxy closed it
+                    // let's reconnect
+                    await subscribe();
+                } else if (response.status != 200) {
+                    // An error - let's show it
+                    console.log(response.statusText)
+                    // Reconnect in one second
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await subscribe();
+                } else if (response.status == 210) {
+                    // Still waiting for panel
+                    console.log('Waiting for panel...')
+                    // Query again in one second
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await subscribe();
+                } else {
+                    // Panel is done, show Popup
+                    let message = await response.text();
+                    alert(message);
+                    shutdownBtn.style.display = "block";
+                }
+            }
         }
 
 

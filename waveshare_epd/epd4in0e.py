@@ -1,5 +1,5 @@
 # *****************************************************************************
-# * | File        :	  epd7in3f.py
+# * | File        :	  epd4in0e.py
 # * | Author      :   Waveshare team
 # * | Function    :   Electronic paper driver
 # * | Info        :
@@ -29,43 +29,49 @@
 #
 
 import logging
+from typing import Literal
+
+from PIL import Image
+
 from waveshare_epd.epdconfig import RaspberryPi
 
-import PIL
-from PIL import Image
-import io
-
-# Display resolution
-EPD_WIDTH       = 400
-EPD_HEIGHT      = 600
 
 logger = logging.getLogger(__name__)
 
+
 class EPD:
     def __init__(self):
+        # Display
+        self.LANDSCAPE = False
+        self.WIDTH = 400
+        self.HEIGHT = 600
+        self.PALETTE = (0, 0, 0, 255, 255, 255, 0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 0, 255, 0, 255, 0) + (
+            0,
+            0,
+            0,
+        ) * 249  # PIL format, list of r,g,b, r,g,b,... plus empty data (a palette is at least 256 colors)
+
         self.epd = RaspberryPi()
         self.reset_pin = self.epd.RST_PIN
         self.dc_pin = self.epd.DC_PIN
         self.busy_pin = self.epd.BUSY_PIN
         self.cs_pin = self.epd.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
-        self.BLACK  = 0x000000   #   0000  BGR
-        self.WHITE  = 0xffffff   #   0001
-        self.YELLOW = 0x00ffff   #   0010
-        self.RED    = 0x0000ff   #   0011
-        self.BLUE   = 0xff0000   #   0101
-        self.GREEN  = 0x00ff00   #   0110
-        
+
+        self.BLACK = 0x000000  #   0000  BGR
+        self.WHITE = 0xFFFFFF  #   0001
+        self.YELLOW = 0x00FFFF  #   0010
+        self.RED = 0x0000FF  #   0011
+        self.BLUE = 0xFF0000  #   0101
+        self.GREEN = 0x00FF00  #   0110
 
     # Hardware reset
     def reset(self):
         self.epd.digital_write(self.reset_pin, 1)
-        self.epd.delay_ms(20) 
-        self.epd.digital_write(self.reset_pin, 0)         # module reset
+        self.epd.delay_ms(20)
+        self.epd.digital_write(self.reset_pin, 0)  # module reset
         self.epd.delay_ms(2)
         self.epd.digital_write(self.reset_pin, 1)
-        self.epd.delay_ms(20)   
+        self.epd.delay_ms(20)
 
     def send_command(self, command):
         self.epd.digital_write(self.dc_pin, 0)
@@ -78,23 +84,23 @@ class EPD:
         self.epd.digital_write(self.cs_pin, 0)
         self.epd.spi_writebyte([data])
         self.epd.digital_write(self.cs_pin, 1)
-        
-    # send a lot of data   
+
+    # send a lot of data
     def send_data2(self, data):
         self.epd.digital_write(self.dc_pin, 1)
         self.epd.digital_write(self.cs_pin, 0)
         self.epd.spi_writebyte2(data)
         self.epd.digital_write(self.cs_pin, 1)
-        
+
     def ReadBusyH(self):
         logger.debug("e-Paper busy H")
-        while(self.epd.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
+        while self.epd.digital_read(self.busy_pin) == 0:  # 0: busy, 1: idle
             self.epd.delay_ms(5)
         self.epd.delay_ms(200)
         logger.debug("e-Paper busy H release")
 
     def TurnOnDisplay(self):
-        self.send_command(0x04) # POWER_ON
+        self.send_command(0x04)  # POWER_ON
         self.ReadBusyH()
 
         self.send_command(0x06)
@@ -104,23 +110,23 @@ class EPD:
         self.send_data(0x27)
         self.epd.delay_ms(200)
 
-        self.send_command(0x12) # DISPLAY_REFRESH
-        self.send_data(0X00)
+        self.send_command(0x12)  # DISPLAY_REFRESH
+        self.send_data(0x00)
         self.ReadBusyH()
-        
-        self.send_command(0x02) # POWER_OFF
-        self.send_data(0X00)
+
+        self.send_command(0x02)  # POWER_OFF
+        self.send_data(0x00)
         self.ReadBusyH()
-        
+
     def init(self):
-        if (self.epd.module_init() != 0):
+        if self.epd.module_init() != 0:
             return -1
         # EPD hardware init start
         self.reset()
         self.ReadBusyH()
         self.epd.delay_ms(30)
 
-        self.send_command(0xAA)   
+        self.send_command(0xAA)
         self.send_data(0x49)
         self.send_data(0x55)
         self.send_data(0x20)
@@ -131,7 +137,7 @@ class EPD:
         self.send_command(0x01)
         self.send_data(0x3F)
 
-        self.send_command(0x00)  
+        self.send_command(0x00)
         self.send_data(0x5F)
         self.send_data(0x69)
 
@@ -157,7 +163,7 @@ class EPD:
         self.send_data(0x00)
         self.send_data(0x54)
         self.send_data(0x00)
-        self.send_data(0x44) 
+        self.send_data(0x44)
 
         self.send_command(0x60)
         self.send_data(0x02)
@@ -172,7 +178,7 @@ class EPD:
         self.send_command(0x61)
         self.send_data(0x01)
         self.send_data(0x90)
-        self.send_data(0x02) 
+        self.send_data(0x02)
         self.send_data(0x58)
 
         self.send_command(0xE3)
@@ -185,21 +191,21 @@ class EPD:
 
     def getbuffer(self, image):
         # Create a pallette with the 7 colors supported by the panel
-        pal_image = Image.new("P", (1,1))
-        pal_image.putpalette( (0,0,0,  255,255,255,  255,255,0,  255,0,0,  0,0,0,  0,0,255,  0,255,0) + (0,0,0)*249)
+        pal_image = Image.new("P", (1, 1))
+        pal_image.putpalette(self.PALETTE)
 
         # Convert the soruce image to the 7 colors, dithering if needed
         image_6color = image.convert("RGB").quantize(palette=pal_image)
-        buf_6color = bytearray(image_6color.tobytes('raw'))
+        buf_6color = bytearray(image_6color.tobytes("raw"))
 
         # PIL does not support 4 bit color, so pack the 4 bits of color
         # into a single byte to transfer to the panel
-        buf = [0x00] * int(self.width * self.height / 2)
+        buf = [0x00] * int(self.WIDTH * self.HEIGHT / 2)
         idx = 0
         for i in range(0, len(buf_6color), 2):
-            buf[idx] = (buf_6color[i] << 4) + buf_6color[i+1]
+            buf[idx] = (buf_6color[i] << 4) + buf_6color[i + 1]
             idx += 1
-            
+
         return buf
 
     def display(self, image):
@@ -207,18 +213,22 @@ class EPD:
         self.send_data2(image)
 
         self.TurnOnDisplay()
-        
-    def Clear(self, color=0x11):
+
+    def clear(self, color=0x11):
         self.send_command(0x10)
-        self.send_data2([color] * int(self.height) * int(self.width/2))
+        self.send_data2([color] * int(self.HEIGHT) * int(self.WIDTH / 2))
 
         self.TurnOnDisplay()
 
     def sleep(self):
-        self.send_command(0x07) # DEEP_SLEEP
-        self.send_data(0XA5)
-        
+        self.send_command(0x07)  # DEEP_SLEEP
+        self.send_data(0xA5)
+
         self.epd.delay_ms(2000)
         self.epd.module_exit()
-### END OF FILE ###
 
+    def exit_clean(self, cleanup: bool) -> None:
+        self.epd.module_exit(cleanup)
+
+
+### END OF FILE ###
